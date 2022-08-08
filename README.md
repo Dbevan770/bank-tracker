@@ -2,14 +2,21 @@
 Automated bank expense tool that uploads all expenses for the month into Google Sheets. Made using Python
 
 # Set-Up
-In order to get this to work properly you will need to create a project on the Google Developer Console and create a service account.
-After that you will need to download the Service Account's key and put it in the proper folder.
-Create a new Google Sheet and share it with the Service Account as an Editor.
+In order to get this to work properly you will need to:
++ Create a project on the Google Developer Console.
++ Create a Service Account.
++ Download the Service Account's key and put it in the proper folder.
++ Create a new Google Sheet and share it with the Service Account as an Editor.
++ You will need to make sure you have enable the Google Drive API and Google Sheets API.
+
+*NOTE*
+
 Not all Bank CSV's are the same, the section where I pick out the rows that I want is specific to my Bank's format. You will need to adjust this depending on how you CSVs are formatted.
 
 # Usage
 In the command line this script is used as follows:
-python <.csv file name> <intended name of sheet>
+
+`python <.csv file name> <intended name of sheet>`
 
 # Current Features
 At the moment it will create headings for 2 seperate tables where it will list all categories of expenses and then a separate table with all the expenses themselves.
