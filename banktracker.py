@@ -1,9 +1,7 @@
 import csv
-from turtle import position
 import eel
 from sre_constants import CATEGORY_LOC_NOT_WORD
 import gspread
-import sys
 import time
 from decimal import *
 from datetime import datetime

@@ -33,8 +33,8 @@ body {
 }
 
 .drop-zone--over {
-    border-style: solid;
-    background-color: #eeeeee;
+    border: solid black;
+    background-color: rgba(255,255,255,.4);
     color: black;
 }
 
