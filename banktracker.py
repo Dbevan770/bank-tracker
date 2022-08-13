@@ -1,4 +1,6 @@
 import csv
+from turtle import position
+import eel
 from sre_constants import CATEGORY_LOC_NOT_WORD
 import gspread
 import sys
@@ -10,7 +12,7 @@ from datetime import datetime
 getcontext().prec = 2
 
 # Get the file from the first command line arguement
-file = f'{sys.argv[1]}'
+#file = f'{sys.argv[1]}'
 
 # Create empty lists to store transactions and each unique transaction category
 transactions = []
@@ -67,12 +69,13 @@ sa = gspread.service_account()
 sh = sa.open("Bank Tracker")
 
 # Store all the rows extracted from .csv so they can be uploaded
-rows = readCSV(file)
+#rows = readCSV(file)
 
-def main(argv):
+#def main():
     # Create a sheet with name taken from second command line argument
-    createSheet(sys.argv[2])
+    #createSheet(sys.argv[2])
 
 # Push all arguments into main function to be used if necessary
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    eel.init('web')
+    eel.start('index.html', size=(1280,720), position=(0,0))
