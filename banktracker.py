@@ -9,12 +9,15 @@ from datetime import datetime
 # Change Decimal module to have only 2 decimal places as these values are currency
 getcontext().prec = 2
 
-# Get the file from the first command line arguement
-#file = f'{sys.argv[1]}'
-
 # Create empty lists to store transactions and each unique transaction category
 transactions = []
 categories = []
+
+# Store all the rows extracted from .csv so they can be uploaded
+@eel.expose
+def startSheetCreation(file, sheetName):
+    rows = readCSV(file)
+    createSheet(sheetName, rows)
 
 # Function for reading the .csv file returns list of transactions
 def readCSV(file):
@@ -49,25 +52,22 @@ def insertCategories(wks, startRow):
         time.sleep(2)
 
 # Function that inputs all transactions into another table
-def insertExpenses(wks, startRow):
+def insertExpenses(wks, startRow, rows):
     for row in reversed(rows):
         wks.insert_row([row[0], row[1], row[2], row[3]], int(startRow))
         time.sleep(2)
 
 # Function that creates a new sheet in the linked Google Sheets project
-def createSheet(sheetName):
+def createSheet(sheetName, rows):
     worksheet = sh.add_worksheet(title=sheetName, rows=200, cols=20)
     worksheet.insert_row(["Expense Name", "Total"], 1)
     insertCategories(worksheet, 2)
     worksheet.insert_row(["Date", "Description", "Category", "Amount (USD)"], len(categories) + 3)
-    insertExpenses(worksheet, len(categories) + 4)
+    insertExpenses(worksheet, len(categories) + 4, rows)
 
 # Connect service account, open the correct Google Sheets project
 sa = gspread.service_account()
 sh = sa.open("Bank Tracker")
-
-# Store all the rows extracted from .csv so they can be uploaded
-#rows = readCSV(file)
 
 #def main():
     # Create a sheet with name taken from second command line argument

@@ -1,3 +1,12 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+* {
+	font-family: "Roboto";
+}
+
+:root {
+    --highlighted-input-color: #fffb94;
+}
+
 html {
     height: 100%;
 }
@@ -30,6 +39,10 @@ body {
     border: 4px dashed #eeeeee;
     color: #eeeeee;
     border-radius: 12px;
+}
+
+.drop-zone__tooltip {
+    font-size: 10px;
 }
 
 .drop-zone--over {
@@ -67,4 +80,63 @@ body {
 
 .filter-black {
     filter: invert(0%) sepia(0%) saturate(7500%) hue-rotate(327deg) brightness(96%) contrast(104%);
+}
+
+.sheet-name__container {
+    margin-top: 30px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+}
+
+.form-label {
+    color: #eeeeee;
+    font-size: 0.75rem;
+}
+
+.form__field{
+    outline: none;
+    width: 100%;
+    height: 2rem;
+    font-size: 1.0625rem;
+    border: none;
+    border-bottom: 0.125rem solid #eeeeee;
+    background: transparent;
+    color: #eeeeee;
+    padding-left: 8px;
+}
+
+.form__field:hover {
+    cursor: text;
+}
+
+.form__field:focus {
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 2pt;
+    box-shadow: 0 0 3pt 2pt var(--highlighted-input-color);
+    color: var(--highlighted-input-color);
+}
+
+.form__field:focus::placeholder {
+    color: transparent;
+}
+
+.submit-container {
+    margin-top: 30px;
+}
+
+.submit-btn {
+    background: transparent;
+    border: 2pt solid #eeeeee;
+    border-radius: 10px;
+    color: #eeeeee;
+    font-size: 1.5rem;
+    padding: 10px;
+}
+
+.submit-btn:hover {
+    cursor: pointer;
+    color: black;
+    background-color: #eeeeee;
 }

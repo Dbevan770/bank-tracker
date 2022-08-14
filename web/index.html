@@ -6,13 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Tracker</title>
     <link rel="stylesheet" href="main.css">
+    <script type="text/javascript" src="/eel.js" defer></script>
     <script src="script.js" defer></script>
 </head>
 <body>
     <div class="drop-zone">
         <img class="file-upload" src="file_upload.svg" alt="File Upload"> 
-        <span class="drop-zone__prompt">Drop file here or click to browse</span>
-        <input type="file" name="myFile" class="drop-zone__input">
+        <span class="drop-zone__prompt">Drop file here or click to browse*</span>
+        <span class="drop-zone__tooltip">*only .csv files supported</span>
+        <input type="file" name="myFile" class="drop-zone__input" accept=".csv">
     </div>
+    <!-- <div class="sheet-name__container">
+        <label for="sheet-name-input" class="form-label">Sheet Name:</label>
+        <input type="text" class="form__field" name="sheet-name-input" id="sheet-name-input" placeholder="Sheet Name">
+    </div>
+    <div class="submit-container">
+        <button type="submit" class="submit-btn">SUBMIT</button>
+    </div> -->
 </body>
 </html>
