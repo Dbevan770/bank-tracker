@@ -152,7 +152,8 @@ def insertExpenses(wks, startRow, rows, progress):
         time.sleep(1)
         wks.format(f'A{(len(categories) + 4)}', {
             "numberFormat": {
-                "type": "DATE"
+                "type": "DATE",
+                "pattern": "yyyy-mm-dd"
             }
         })
         wks.format(f'D{(len(categories) + 4)}', {
