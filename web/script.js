@@ -5,6 +5,7 @@ const dropTt = document.querySelector(".drop-zone__tooltip");
 const body = document.querySelector('body');
 let progressBar = document.getElementsByClassName('progress-bar')[0];
 
+// Progress variable for Loading bar
 let currentProgress = 0;
 
 // Initialize DOM elements globally for easy cleanup
@@ -18,13 +19,20 @@ let dropZoneElement = null;
 let loadingTooltip = null;
 let loadingContainer = null;
 
+// Set up for drag-n-drop area functionallity.
 document.querySelectorAll(".drop-zone__input").forEach(inputElement => {
+    // Uses file system access API which operates on
+    // promises and returned handles.
     let fileHandle;
     dropZoneElement = inputElement.closest(".drop-zone");
 
+    // Add a file browser on click functionality
     dropZoneElement.addEventListener("click", async e => {
         [fileHandle] = await window.showOpenFilePicker();
 
+        // If chosen file is a file get the file object
+        // and store all text inside.
+        // Pass the text to the updateThumbnail function.
         if(fileHandle.kind === 'file') {
             let file = await fileHandle.getFile()
             let text = await file.text()
@@ -33,6 +41,8 @@ document.querySelectorAll(".drop-zone__input").forEach(inputElement => {
         }
     });
 
+    // This allows the drag-n-drop field to change
+    // when a file is dragged over the area.
     dropZoneElement.addEventListener("dragover", e => {
         if(inputElement.files.length == 0){
             e.preventDefault();
@@ -42,6 +52,7 @@ document.querySelectorAll(".drop-zone__input").forEach(inputElement => {
         }
     });
 
+    // The opposite of dragover
     ["dragleave", "dragend"].forEach(type => {
         dropZoneElement.addEventListener(type, e => {
             dropZoneElement.classList.remove("drop-zone--over");
@@ -50,6 +61,8 @@ document.querySelectorAll(".drop-zone__input").forEach(inputElement => {
         });
     });
 
+    // Functionallity when a file is dropped on the drag-n-drop zone.
+    // Works exactly the same as the click to browse function.
     dropZoneElement.addEventListener("drop", async e => {
         e.preventDefault();
 
@@ -70,6 +83,8 @@ document.querySelectorAll(".drop-zone__input").forEach(inputElement => {
     });
 });
 
+// This changes the drop-zone to show that the file was
+// successfully added.
 function updateThumbnail(dropZoneElement, file, fileName) {
     console.log("Updating thumbnail");
     fileUploadImg.remove();
@@ -89,6 +104,9 @@ function updateThumbnail(dropZoneElement, file, fileName) {
     createInputFields(file);
 }
 
+// After the file has been added this function creates an input
+// field for the user to specify a name and creates a submit
+// button to start the sheet creation.
 function createInputFields(file){
 
     sheetNameContainer = document.createElement('div');
@@ -125,12 +143,14 @@ function createInputFields(file){
     });
 }
 
+// Removes all the elements from the drop-zone
 function deletePage(){
     sheetBtnContainer.remove();
     dropZoneElement.remove();
     sheetNameContainer.remove();
 }
 
+// Sets up the loading bar page.
 function setupNewPage() {
     loadingContainer = document.createElement('div');
     body.appendChild(loadingContainer);
@@ -151,6 +171,8 @@ function setupNewPage() {
     loadingTooltip.textContent = "Reading .csv file...";
 }
 
+// Function exposed to the Python script that updates
+// the fill of the loading bar.
 eel.expose(updateProgressBar);
 function updateProgressBar(addedProgress, newToolTip){
     const computedStyle = getComputedStyle(progressBar);
@@ -159,6 +181,8 @@ function updateProgressBar(addedProgress, newToolTip){
     progressBar.style.setProperty('--progress', progress + addedProgress);
 }
 
+// Function to set-up the final "Done!" page when sheet uploading is
+// complete.
 eel.expose(done);
 function done(){
     loadingContainer.remove();
