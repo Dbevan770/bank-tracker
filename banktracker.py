@@ -10,6 +10,7 @@ import time
 from decimal import *
 from datetime import datetime as dt
 
+# Variables for eel properties. This will allow user to change window size in the future
 screen_width = tk.Tk().winfo_screenwidth()
 screen_height = tk.Tk().winfo_screenheight()
 win_width = 1280
@@ -22,15 +23,23 @@ getcontext().prec = 2
 transactions = []
 categories = []
 
+# Variables to store the name of the temp file and the OS temp directory
+# For the sake of security Javascript cannot access all details of
+# local storage. The workaround I have created is that the contents
+# of the file added to the GUI are written to a temp file and then
+# read by this script.
 tmp_path = tempfile.gettempdir()
 tmp_fileName = "tmp.csv"
 completeName = os.path.join(tmp_path, tmp_fileName)
 
-# Store all the rows extracted from .csv so they can be uploaded
+# Writing the content of the uploaded files to the temp file
 def writeToTemp(fileContent):
     lines = fileContent.splitlines()
     print("Writing tmp file...")
     f = open(completeName, "w")
+
+    # This overwrites the file everytime so new temp files don't
+    # need to be created.
     f.seek(0)
     for line in lines[:-1]:
         f.write(line)
@@ -38,6 +47,8 @@ def writeToTemp(fileContent):
     f.write(lines[-1])
     f.close()
 
+# The function that starts to process of sheet creation exposed
+# to the Javascript of the web based GUI.
 @eel.expose
 def startSheetCreation(file, sheetName):
     writeToTemp(file)
@@ -73,10 +84,16 @@ def readCSV(file):
 # Function that creates a table of each unique category
 # so that you can track which categories cost you the most
 def insertCategories(wks, startRow, progress):
+    # This allows the loading bar on the GUI to updated
+    # a small percentage with each completed category insertion.
     addedProgress = progress / len(categories)
     print("Writing categories...")
+
+    # Offset is needed for formatting purposes.
     offset = 0
     for category in categories:
+        # time.sleep() prevents going over the maximum allowed
+        # API calls. Writes the category and formats it all at once.
         wks.insert_row([category], int(startRow))
         time.sleep(1)
         wks.update(f'B2', f'=SUMIF(C:C,INDIRECT("A{(len(categories) + 1) - offset}"),D:D)', raw=False)
@@ -86,13 +103,15 @@ def insertCategories(wks, startRow, progress):
                 "type": "CURRENCY"
             }
         })
+        # Calls updateProgressBar Javascript function to change
+        # the fill of the loading bar.
         eel.updateProgressBar(addedProgress, "Inserting Categories...")
         offset = offset + 1
         time.sleep(2)
     print("Categories done!")
 
+# Any formatting for titles and the Totals section is done here
 def updateFormatting(wks, rows):
-    
     wks.update('F6', 'Total Income')
     wks.update('F7', f'=SUMIF(B2:B{len(categories) + 1}, ">0", B2:B{len(categories) + 1})', value_input_option='USER_ENTERED')
     wks.update('G6', 'Total Expenses')
