@@ -19,7 +19,6 @@ win_height = 720
 getcontext().prec = 2
 
 # Create empty lists to store transactions and each unique transaction category
-transactions = []
 categories = []
 
 # Variables to store the name of the temp file and the OS temp directory
@@ -49,16 +48,19 @@ def writeToTemp(fileContent):
 # The function that starts to process of sheet creation exposed
 # to the Javascript of the web based GUI.
 @eel.expose
-def startSheetCreation(file, sheetName):
+def startSheetCreation(file, sheetName, isLast):
     writeToTemp(file)
+    print(file)
     rows = readCSV(completeName)
     eel.updateProgressBar(10, "Creating Sheet...")
-    createSheet(sheetName, rows)
+    createSheet(sheetName, rows, isLast)
 
 # Function for reading the .csv file returns list of transactions
 def readCSV(file):
+    transactions = []
     with open(file, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file)
+        print(csv_reader)
         # Iterate through each row of the .csv file
         for row in csv_reader:
             # Change the format of the date in the .csv to a more human readable format
@@ -158,20 +160,21 @@ def updateFormatting(wks, rows):
 
 def cleanup():
     os.remove(completeName)
-    time.sleep(1)
+    time.sleep(2)
 
 # Function that inputs all transactions into another table
 def insertExpenses(wks, startRow, rows, progress):
+    print(rows)
     addedProgress = progress / len(rows)
     offset = 0
     print("Writing expenses...")
     for row in reversed(rows):
         wks.insert_row([row[0], row[1], row[2], row[3]], int(startRow))
-        time.sleep(1)
+        time.sleep(2)
         wks.update(f'A{(len(categories) + 4)}', row[0], value_input_option='USER_ENTERED')
-        time.sleep(1)
+        time.sleep(2)
         wks.update(f'D{(len(categories) + 4)}', row[3], raw=False)
-        time.sleep(1)
+        time.sleep(2)
         wks.format(f'A{(len(categories) + 4)}', {
             "numberFormat": {
                 "type": "DATE",
@@ -188,7 +191,8 @@ def insertExpenses(wks, startRow, rows, progress):
     print("Expenses done!")
 
 # Function that creates a new sheet in the linked Google Sheets project
-def createSheet(sheetName, rows):
+def createSheet(sheetName, rows, isLast):
+    eel.updateSheetTitle(sheetName)
     worksheet = sh.add_worksheet(title=sheetName, rows=200, cols=20)
     worksheet.insert_row(["Expense Name", "Total"], 1)
     eel.updateProgressBar(10, "Inserting Categories...")
@@ -204,7 +208,10 @@ def createSheet(sheetName, rows):
     eel.updateProgressBar(5, "Cleaning up...")
     cleanup()
     eel.updateProgressBar(5, "Done!")
-    eel.done()
+    time.sleep(2)
+    if isLast:
+        eel.done()
+
 
 # Connect service account, open the correct Google Sheets project
 sa = gspread.service_account()

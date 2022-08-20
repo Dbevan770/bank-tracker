@@ -75,8 +75,16 @@ You can then format the data further to make it look nicer:
 
 
 # Current Features
-## Version 0.1.0
+## Version 0.2.0 (Current)
++ Added support for multiple files across both drag-n-drop and click-to-browse
++ Limit of 5 files at a time
++ Tuned delays between API calls to try and prevent any over exertion
++ Added app version display in the bottom right-hand corner
++ Added footer with copyright and link to my GitHub
++ Bug fixes and misc. tweaks to automation and ease of use
+
+## Version 0.1.0 (Old)
 This program now has a fully functional GUI. However, upon completion of uploading one file you will need to restart the program to upload another one.
 
 # Planned Additions
-Future versions I plan to include the ability to upload multiple files in a row. Additonally the ability to return to the main page once the file finishes uploading.
+Future versions I would like to implement the ability to return to the main page and begin uploading again. I would also like to add more automation including telling the app which rows in your CSV correspond to which categories.
