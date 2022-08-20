@@ -3,43 +3,80 @@ Automated bank expense tool that uploads all expenses for the month into Google 
 
 # Set-Up
 In order to get this to work properly you will need to:
++ You must have Google Chrome installed.
 + Create a project on the Google Developer Console.
 + Create a Service Account.
 + Download the Service Account's key and put it in the proper folder.
 + Create a new Google Sheet and share it with the Service Account as an Editor.
-+ You will need to make sure you have enable the Google Drive API and Google Sheets API.
++ You will need to make sure you have enabled the Google Drive API and Google Sheets API.
+[More detailed instructions can be found in Google's documentation](https://docs.gspread.org/en/latest/oauth2.html)
 
 *NOTE*
 
 Not all Bank CSV's are the same, the section where I pick out the rows that I want is specific to my Bank's format. You will need to adjust this depending on how your CSVs are formatted.
 
-# Usage
-In the command line this script is used as follows:
+# Usage - Windows
+In order to launch the app you will need to have [Python3](https://www.python.org/downloads/windows/) installed.
 
-`python <path\to\file>\banktracker.py <.csv file name> <intended name of sheet>`
+Open Windows Terminal/Powershell/Command Prompt and execute the following command:
+
+`python <path-to-file>\banktracker.py`
+
+# Usage - Linux
+*FOR LINUX IT MAY ALREADY BE INSTALLED*
+
+Install Python3 through your package manager.
+
+Execute the following command:
+
+`python <path-to-file>/banktracker.py`
+
+## Debian
+
+`sudo apt install python3`
+
+## Arch
+
+`sudo pacman -S python3`
 
 # Example
 As an example here is a similar .csv to what I used:
+
 `posted,,03/29/2022,,TOTALLY REAL EXPENSE,Restaurants/Dining,-5.55`
 `posted,,03/28/2022,,DEFINITELY NOT JUST AN EXAMPLE,General Merchandise,-43.4`
 `posted,,03/28/2022,,THANKS FOR CHECKING OUT MY GITHUB,Pet Care/Pet Items,-17.9`
 
 I then run the script:
-`python .\banktracker.py example.csv example`
+`python .\banktracker.py`
 
-A new sheet is created and the data is uploaded to Google Sheets:
+The program is launched and you are presented with the file upload page:
 
-![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/example_unformatted.png "Example of Data Unformatted.")
+![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/tracker_gui_main_page.png "The file upload screen.")
+*The file upload screen.*
 
-You can then format the data yourself to make it look nicer:
+After either drag-n-drop of the file or picking it through the file browser you will be prompted to name the sheet.
+If you do not specify a name Google will by default name the sheet "Sheet<number>":
+
+![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/sheet_naming_page.png "The sheet naming page.")
+*The sheet naming page.*
+
+Click the submit button and the sheet will begin to be created. Depending on the length of your CSV this can take quite
+some time. This is due to the fact that Google limits API calls and delays had to be inserted between each call:
+
+![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/uploading_page.png "Loading bar displayed while file is uploaded.")
+*Loading bar displayed while file is uploaded.*
+
+After the file has been uploaded it will do some basic formatting to make the data cleaner.
+
+You can then format the data further to make it look nicer:
 
 ![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/example_formatted.png "Example of Data Formatted.")
+*Example of Data Formatted.*
 
 
 # Current Features
-At the moment it will create headings for 2 seperate tables where it will list all categories of expenses and then a separate table with all the expenses themselves.
-If your CSV does not come with catergories you could write your own or add some sort of dictionary for that as well.
+## Version 0.1.0
+This program now has a fully functional GUI. However, upon completion of uploading one file you will need to restart the program to upload another one.
 
 # Planned Additions
-I plan to continue to make it as hands off as possible. Potentially I would like to add a GUI that allows you to drop in the .csv file instead of manually
-typing it into the command line.
+Future versions I plan to include the ability to upload multiple files in a row. Additonally the ability to return to the main page once the file finishes uploading.

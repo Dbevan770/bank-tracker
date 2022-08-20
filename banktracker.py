@@ -4,7 +4,6 @@ from pathlib import Path
 import tempfile
 import eel
 import tkinter as tk
-from sre_constants import CATEGORY_LOC_NOT_WORD
 import gspread
 import time
 from decimal import *
@@ -157,6 +156,10 @@ def updateFormatting(wks, rows):
         }
     })
 
+def cleanup():
+    os.remove(completeName)
+    time.sleep(1)
+
 # Function that inputs all transactions into another table
 def insertExpenses(wks, startRow, rows, progress):
     addedProgress = progress / len(rows)
@@ -198,7 +201,9 @@ def createSheet(sheetName, rows):
     insertExpenses(worksheet, len(categories) + 4, rows, rowProgress)
     eel.updateProgressBar(0, "Adding base formatting...")
     updateFormatting(worksheet, rows)
-    eel.updateProgressBar(10, "Adding base formatting...")
+    eel.updateProgressBar(5, "Cleaning up...")
+    cleanup()
+    eel.updateProgressBar(5, "Done!")
     eel.done()
 
 # Connect service account, open the correct Google Sheets project
