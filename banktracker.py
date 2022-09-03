@@ -1,10 +1,10 @@
 import csv
 import os.path
-from pathlib import Path
 import tempfile
 import eel
 import tkinter as tk
 import gspread
+import gspread_formatting as gsf
 import time
 from decimal import *
 from datetime import datetime as dt
@@ -50,7 +50,6 @@ def writeToTemp(fileContent):
 @eel.expose
 def startSheetCreation(file, sheetName, isLast):
     writeToTemp(file)
-    print(file)
     rows = readCSV(completeName)
     eel.updateProgressBar(10, "Creating Sheet...")
     createSheet(sheetName, rows, isLast)
@@ -60,7 +59,6 @@ def readCSV(file):
     transactions = []
     with open(file, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file)
-        print(csv_reader)
         # Iterate through each row of the .csv file
         for row in csv_reader:
             # Change the format of the date in the .csv to a more human readable format
@@ -99,11 +97,6 @@ def insertCategories(wks, startRow, progress):
         time.sleep(1)
         wks.update(f'B2', f'=SUMIF(C:C,INDIRECT("A{(len(categories) + 1) - offset}"),D:D)', raw=False)
         time.sleep(1)
-        wks.format(f'B2', {
-            "numberFormat": {
-                "type": "CURRENCY"
-            }
-        })
         # Calls updateProgressBar Javascript function to change
         # the fill of the loading bar.
         eel.updateProgressBar(addedProgress, "Inserting Categories...")
@@ -113,58 +106,127 @@ def insertCategories(wks, startRow, progress):
 
 # Any formatting for titles and the Totals section is done here
 def updateFormatting(wks, rows):
+    # batch updating saves API calls allowing all formatting to be pushed at once
+    batch = gsf.batch_updater(sh)
+    # the formatting for a header
+    headerFormat = gsf.cellFormat(
+        backgroundColor=gsf.color(0.6, 0.6, 0.6),
+        textFormat=gsf.textFormat(bold=True, fontSize=14),
+        horizontalAlignment='CENTER',
+        borders=gsf.borders(bottom=gsf.border('SOLID'), top=gsf.border('SOLID'), right=gsf.border('SOLID'), left=gsf.border('SOLID'))
+    )
+    # currency format for any cells that contain a currecny value
+    currencyFormat = gsf.cellFormat(
+        numberFormat=gsf.numberFormat(type='CURRENCY', pattern='$#,##0.00'),
+        borders=gsf.borders(bottom=gsf.border('SOLID'), top=gsf.border('SOLID'), right=gsf.border('SOLID'), left=gsf.border('SOLID'))
+    )
+    # standardized date format
+    dateFormat = gsf.cellFormat(
+        numberFormat=gsf.numberFormat(type='DATE', pattern='yyyy-mm-dd'),
+        borders=gsf.borders(bottom=gsf.border('SOLID'), top=gsf.border('SOLID'), right=gsf.border('SOLID'), left=gsf.border('SOLID'))
+    )
+    # complete outline to all cells
+    borderFormat = gsf.cellFormat(
+        borders=gsf.borders(bottom=gsf.border('SOLID'), top=gsf.border('SOLID'), right=gsf.border('SOLID'), left=gsf.border('SOLID'))
+    )
+    # creating the totals table and adding formulas
     wks.update('F6', 'Total Income')
     wks.update('F7', f'=SUMIF(B2:B{len(categories) + 1}, ">0", B2:B{len(categories) + 1})', value_input_option='USER_ENTERED')
     wks.update('G6', 'Total Expenses')
     wks.update('G7', f'=SUMIF(B2:B{len(categories) + 1}, "<0", B2:B{len(categories) + 1})', value_input_option='USER_ENTERED')
     wks.update('H6', 'Profit/ Loss')
     wks.update('H7', '=SUM(F7+G7)', value_input_option='USER_ENTERED')
-    wks.format('A1:B1', {
-        "backgroundColor": {
-            "red": 0.6,
-            "green": 0.6,
-            "blue": 0.6 
-        },
-        "textFormat": {
-            "bold": "True",
-            "fontSize": 14
-        }
-    })
-    wks.format(f'A{len(categories) + 3}:D{len(categories) + 3}', {
-        "backgroundColor": {
-            "red": 0.6,
-            "green": 0.6,
-            "blue": 0.6 
-        },
-        "textFormat": {
-            "bold": "True",
-            "fontSize": 14
-        }
-    })
-    wks.format('F6:H6', {
-        "backgroundColor": {
-            "red": 0.6,
-            "green": 0.6,
-            "blue": 0.6 
-        },
-        "textFormat": {
-            "bold": "True",
-            "fontSize": 14
-        }
-    })
-    wks.format('F7:H7', {
-        "numberFormat": {
-            "type": "CURRENCY"
-        }
-    })
 
+    # All of these are conditional rules to add red / green background
+    catNeg = gsf.ConditionalFormatRule(
+        ranges=[gsf.GridRange.from_a1_range(f'B2:B{len(categories) + 1}', wks)],
+        booleanRule=gsf.BooleanRule(
+            condition=gsf.BooleanCondition('NUMBER_LESS', ['0']),
+            format=gsf.CellFormat(textFormat=gsf.textFormat(bold=False), backgroundColor=gsf.color(0.95,0.78,0.76))
+        )
+    )
+
+    catPos = gsf.ConditionalFormatRule(
+        ranges=[gsf.GridRange.from_a1_range(f'B2:B{len(categories) + 1}', wks)],
+        booleanRule=gsf.BooleanRule(
+            condition=gsf.BooleanCondition('NUMBER_GREATER', ['0']),
+            format=gsf.CellFormat(textFormat=gsf.textFormat(bold=False), backgroundColor=gsf.color(0.71,0.88,0.80))
+        )
+    )
+
+    rowNeg = gsf.ConditionalFormatRule(
+        ranges=[gsf.GridRange.from_a1_range(f'D{len(categories) + 4}:D{(len(categories) + 4) + (len(rows) - 1)}', wks)],
+        booleanRule=gsf.BooleanRule(
+            condition=gsf.BooleanCondition('NUMBER_LESS', ['0']),
+            format=gsf.CellFormat(textFormat=gsf.textFormat(bold=False), backgroundColor=gsf.color(0.95,0.78,0.76))
+        )
+    )
+
+    rowPos = gsf.ConditionalFormatRule(
+        ranges=[gsf.GridRange.from_a1_range(f'D{len(categories) + 4}:D{(len(categories) + 4) + (len(rows) - 1)}', wks)],
+        booleanRule=gsf.BooleanRule(
+            condition=gsf.BooleanCondition('NUMBER_GREATER', ['0']),
+            format=gsf.CellFormat(textFormat=gsf.textFormat(bold=False), backgroundColor=gsf.color(0.71,0.88,0.80))
+        )
+    )
+
+    totalNeg = gsf.ConditionalFormatRule(
+        ranges=[gsf.GridRange.from_a1_range(f'F7:H7', wks)],
+        booleanRule=gsf.BooleanRule(
+            condition=gsf.BooleanCondition('NUMBER_LESS', ['0']),
+            format=gsf.CellFormat(textFormat=gsf.textFormat(bold=False), backgroundColor=gsf.color(0.95,0.78,0.76))
+        )
+    )
+
+    totalPos = gsf.ConditionalFormatRule(
+        ranges=[gsf.GridRange.from_a1_range(f'F7:H7', wks)],
+        booleanRule=gsf.BooleanRule(
+            condition=gsf.BooleanCondition('NUMBER_GREATER', ['0']),
+            format=gsf.CellFormat(textFormat=gsf.textFormat(bold=False), backgroundColor=gsf.color(0.71,0.88,0.80))
+        )
+    )
+
+    # this adds all the conditional format rules to the sheet
+    rules = gsf.get_conditional_format_rules(wks)
+    rules.append(catNeg)
+    rules.append(catPos)
+    rules.append(rowNeg)
+    rules.append(rowPos)
+    rules.append(totalNeg)
+    rules.append(totalPos)
+    rules.save()
+
+    # batch formatting each change is queued up
+    batch.format_cell_range(wks, 'A1:B1', headerFormat)
+    batch.format_cell_range(wks, f'A{len(categories) + 3}:D{len(categories) + 3}', headerFormat)
+    batch.format_cell_range(wks, 'F6:H6', headerFormat)
+    batch.format_cell_range(wks, f'B2:B{len(categories) + 1}', currencyFormat)
+    batch.format_cell_range(wks, 'F7:H7', currencyFormat)
+    batch.format_cell_range(wks, f'A2:A{len(categories) + 1}', borderFormat)
+    batch.format_cell_range(wks, f'A{len(categories) + 4}:A{(len(categories) + 4) + (len(rows) - 1)}', dateFormat)
+    batch.format_cell_range(wks, f'B{len(categories) + 4}:B{(len(categories) + 4) + (len(rows) - 1)}', borderFormat)
+    batch.format_cell_range(wks, f'C{len(categories) + 4}:C{(len(categories) + 4) + (len(rows) - 1)}', borderFormat)
+    batch.format_cell_range(wks, f'D{len(categories) + 4}:D{(len(categories) + 4) + (len(rows) - 1)}', currencyFormat)
+
+    # width of columns was pre-determined
+    batch.set_column_width(wks, 'A', 160)
+    batch.set_column_width(wks, 'B', 320)
+    batch.set_column_width(wks, 'C', 160)
+    batch.set_column_width(wks, 'D', 150)
+    batch.set_column_width(wks, 'F', 125)
+    batch.set_column_width(wks, 'G', 150)
+    batch.set_column_width(wks, 'H', 115)
+
+    # sends all updates in one API call preventing the API from being overloaded
+    batch.execute()
+
+# removes the temp file created to make this function
 def cleanup():
     os.remove(completeName)
     time.sleep(2)
 
 # Function that inputs all transactions into another table
 def insertExpenses(wks, startRow, rows, progress):
-    print(rows)
     addedProgress = progress / len(rows)
     offset = 0
     print("Writing expenses...")
@@ -175,17 +237,6 @@ def insertExpenses(wks, startRow, rows, progress):
         time.sleep(2)
         wks.update(f'D{(len(categories) + 4)}', row[3], raw=False)
         time.sleep(2)
-        wks.format(f'A{(len(categories) + 4)}', {
-            "numberFormat": {
-                "type": "DATE",
-                "pattern": "yyyy-mm-dd"
-            }
-        })
-        wks.format(f'D{(len(categories) + 4)}', {
-            "numberFormat": {
-                "type": "CURRENCY"
-            }
-        })
         eel.updateProgressBar(addedProgress, "Inserting Expenses...")
         time.sleep(2)
     print("Expenses done!")
@@ -208,8 +259,10 @@ def createSheet(sheetName, rows, isLast):
     eel.updateProgressBar(5, "Cleaning up...")
     cleanup()
     eel.updateProgressBar(5, "Done!")
+    print("Finished worksheet!")
     time.sleep(2)
     if isLast:
+        print("All worksheets Done!")
         eel.done()
 
 

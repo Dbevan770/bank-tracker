@@ -201,16 +201,17 @@ function updateThumbnail(dropZoneElement, fileName, isMulti, fileCount) {
 function createInputFields(fileText, fileCount, fileList){
     console.log("Creating Input Fields...");
     let inputContainers = document.querySelectorAll('.sheet-input-container');
-    let isLast = false;
 
-    if(inputContainers != null){
+    if(inputContainers != null && sheetBtnContainer != null){
         inputContainers.forEach(inputContainer =>{
             inputContainer.remove();
         });
+        sheetBtnContainer.remove();
+        sheetBtnContainer = null;
     }
 
     if(sheetNameContainer == null){
-        sheetNameContainer = document.createElement('div');
+        sheetNameContainer = document.createElement('form');
         body.appendChild(sheetNameContainer);
         sheetNameContainer.classList.add("sheet-name__container");
     }
@@ -230,14 +231,17 @@ function createInputFields(fileText, fileCount, fileList){
         sheetInputContainer.appendChild(sheetInputField);
         sheetInputField.classList.add("form__field");
         sheetInputField.setAttribute("type","text");
+        sheetInputField.setAttribute("maxlength", 50);
         sheetInputField.setAttribute("name","sheet-name-input");
         sheetInputField.setAttribute("placeholder", fileList[i].name);
         sheetInputField.setAttribute("id", "sheet-name-input");
     }
 
+    console.log(sheetBtnContainer);
+
     if(sheetBtnContainer == null){
         sheetBtnContainer = document.createElement('div');
-        body.appendChild(sheetBtnContainer);
+        sheetNameContainer.appendChild(sheetBtnContainer);
         sheetBtnContainer.classList.add("submit-container");
 
         sheetSubmitBtn = document.createElement('button');
@@ -245,21 +249,27 @@ function createInputFields(fileText, fileCount, fileList){
         sheetSubmitBtn.classList.add("submit-btn");
         sheetSubmitBtn.textContent = "SUBMIT";
         sheetSubmitBtn.setAttribute("type","submit");
+        sheetNameContainer.setAttribute("onsubmit","submit(fileText)");
         sheetSubmitBtn.addEventListener("click", e => {
-            var inputFields = document.querySelectorAll('.form__field');
-            deletePage();
-            setupNewPage();
-            fileText.forEach((file, index) => {
-                if(index == fileText.length - 1){
-                    isLast = true;
-                }
-                else{
-                    isLast = false;
-                }
-                eel.startSheetCreation(file, inputFields[index].value, isLast);
-            });
+            submit(fileText);
         });
     }   
+}
+
+function submit(fileText){
+    let isLast = false;
+    var inputFields = document.querySelectorAll('.form__field');
+    deletePage();
+    setupNewPage();
+    fileText.forEach((file, index) => {
+        if(index == fileText.length - 1){
+            isLast = true;
+        }
+        else{
+            isLast = false;
+        }
+        eel.startSheetCreation(file, inputFields[index].value, isLast);
+    });
 }
 
 eel.expose(updateSheetTitle);

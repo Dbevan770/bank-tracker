@@ -43,7 +43,9 @@ Execute the following command:
 As an example here is a similar .csv to what I used:
 
 `posted,,03/29/2022,,TOTALLY REAL EXPENSE,Restaurants/Dining,-5.55`
+
 `posted,,03/28/2022,,DEFINITELY NOT JUST AN EXAMPLE,General Merchandise,-43.4`
+
 `posted,,03/28/2022,,THANKS FOR CHECKING OUT MY GITHUB,Pet Care/Pet Items,-17.9`
 
 I then run the script:
@@ -74,8 +76,15 @@ You can then format the data further to make it look nicer:
 *Example of Data Formatted.*
 
 
-# Current Features
-## Version 0.2.0 (Current)
+# What's New?
+## Version 0.3.0 (Current)
++ Changes to the background
++ Sheet Submit field is now a form; this allows you to start by pressing 'Enter' on your keyboard rather than clicking the button
++ Added automatic formatting matching the example above
++ Moved app version display to top-right
++ Added temporary icon (to be replaced later)
+
+## Version 0.2.0 (Old)
 + Added support for multiple files across both drag-n-drop and click-to-browse
 + Limit of 5 files at a time
 + Tuned delays between API calls to try and prevent any over exertion
