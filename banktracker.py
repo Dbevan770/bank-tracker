@@ -59,22 +59,28 @@ def readCSV(file):
     transactions = []
     with open(file, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file)
+        # Skip first line of CSV to avoid header
+        next(csv_reader)
         # Iterate through each row of the .csv file
         for row in csv_reader:
+            # Skip blank rows
+            if row == "":
+                continue
             # Change the format of the date in the .csv to a more human readable format
-            date = str(dt.strptime(row[2], '%m/%d/%Y'))
-            name = row[4]
-            category = row[5]
+            # Date no longer needs to change due to format changes by bank
+            date = row[0]
+            name = row[1]
+            category = row[3]
             # Store each unique category
             if category not in categories:
                 categories.append(category)
             # My .csv files format positive transactions with a double hyphen
             # This if statement changes the double hypen to just be a positive number instead
             # If the number is just a regular negative it is stored as a negative
-            if row[6][:2] == "--":
-                amount = Decimal(row[6][2:])
+            if row[4][:2] == "--":
+                amount = Decimal(row[4][2:])
             else:
-                amount = Decimal(row[6])
+                amount = Decimal(row[4])
             # Store all the data as a transaction element and add it to the transactions list
             transaction = (date, name, category, str(amount))
             transactions.append(transaction)

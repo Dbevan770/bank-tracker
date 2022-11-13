@@ -1,5 +1,11 @@
 # bank-tracker
-Automated bank expense tool that uploads all expenses for the month into Google Sheets. Made using Python
+Automated bank expense tool that uploads all expenses for the month into Google Sheets.
+
+## Technologies Used
++ Python
++ Eel.js (GUI)
++ HTML/CSS
++ Javascript
 
 # Set-Up
 In order to get this to work properly you will need to:
@@ -42,11 +48,11 @@ Execute the following command:
 # Example
 As an example here is a similar .csv to what I used:
 
-`posted,,03/29/2022,,TOTALLY REAL EXPENSE,Restaurants/Dining,-5.55`
+`2022-10-31,"Expense","TOTALLY REAL EXPENSE",Television,-14.99,Posted`
 
-`posted,,03/28/2022,,DEFINITELY NOT JUST AN EXAMPLE,General Merchandise,-43.4`
+`2022-10-31,"Purchase","DEFINITELY NOT JUST AN EXAMPLE",General Merchandise,-5.67,Posted`
 
-`posted,,03/28/2022,,THANKS FOR CHECKING OUT MY GITHUB,Pet Care/Pet Items,-17.9`
+`2022-10-31,"GitHub","THANKS FOR CHECKING OUT MY GITHUB",Shopping,-52.87,Posted`
 
 I then run the script:
 `python .\banktracker.py`
@@ -56,8 +62,8 @@ The program is launched and you are presented with the file upload page:
 ![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/tracker_gui_main_page.png "The file upload screen.")
 *The file upload screen.*
 
-After either drag-n-drop of the file or picking it through the file browser you will be prompted to name the sheet.
-If you do not specify a name Google will by default name the sheet "Sheet<number>":
+After either drag-n-drop the file(s) or select them through the file browser (up to 5 in total) you will be prompted to name the sheet(s).
+If you do not specify a name Google will by default name the sheet "Sheet(number)":
 
 ![alt text](https://github.com/Dbevan770/bank-tracker/blob/main/sheet_naming_page.png "The sheet naming page.")
 *The sheet naming page.*
@@ -77,7 +83,12 @@ You can then format the data further to make it look nicer:
 
 
 # What's New?
-## Version 0.3.0 (Current)
+## Version 0.3.1 (Current)
++ Changes to how the rows are interpreted. (Due to changes of the format for CSVs from my bank)
++ Added the functionality to skip blank rows.
++ Skips CSV header.
+
+## Version 0.3.0 (Old)
 + Changes to the background
 + Sheet Submit field is now a form; this allows you to start by pressing 'Enter' on your keyboard rather than clicking the button
 + Added automatic formatting matching the example above
